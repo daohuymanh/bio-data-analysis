@@ -1,0 +1,15 @@
+---
+title: "Báo cáo: Tỉ lệ % Kết quả NS1 Biosensor theo Tỉnh"
+author: "Auto-generated"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: false
+    theme: flatly
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
