@@ -64,7 +64,7 @@ gadm_vn <- tryCatch(sf::st_as_sf(gadm),error = function(e) NULL)
                        
 # Xem tên cột tên tỉnh trong shapefile (thường là NAME_1)
 print(names(gadm_vn))
-# Thường tên tỉnh nằm ở cột NAME_1
+# Thường tên tỉnh nằm ở cột VARNAME_1
 if (!"VARNAME_1" %in% names(gadm_vn)) {
   stop("Không tìm thấy cột NAME_1 trong GADM - kiểm tra shapefile")
 }
@@ -92,17 +92,17 @@ gadm_centroids <- gadm_vn_sf %>%
     lat = centroids_coords[,2]
   ) %>%
   st_drop_geometry() %>%
-  select(NAME_1, lon, lat) %>%
-  mutate(NAME_1_lower = tolower(NAME_1))
+  select(VARNAME_1, lon, lat) %>%
+  mutate(VARNAME_1_lower = tolower(VARNAME_1))
 
 # Join to df_mapped by NAME_1
 df_plot <- df_mapped %>%
   # if joined by GID_1 earlier, we can match by NAME_1
-  left_join(gadm_centroids, by = c("NAME_1" = "NAME_1"))  # try direct
+  left_join(gadm_centroids, by = c("VARNAME_1" = "VARNAME_1"))  # try direct
 # fallback join by lowercase if needed
 if (any(is.na(df_plot$lon))) {
   df_plot <- df_mapped %>%
-    left_join(gadm_centroids, by = c("NAME_1_lower" = "NAME_1_lower"))
+    left_join(gadm_centroids, by = c("VARNAME_1_lower" = "VARNAME_1_lower"))
 }
 
 # Có thể vẫn còn NA lon nếu mapping không tốt
@@ -114,7 +114,7 @@ if (any(is.na(df_plot$lon))) {
 
 # --- TẠO DỮ LIỆU PIE: đảm bảo có cột Positive & Negative (hoặc các nhãn hiện có) ---
 # Xác định tên cột kết quả thực tế trong df_plot wide
-pie_cols <- setdiff(colnames(df_plot), c("TINH","TINH_lower","NAME_1","NAME_1_lower","GID_1","total_n","pct","lon","lat","geometry"))
+pie_cols <- setdiff(colnames(df_plot), c("TINH","TINH_lower","VARNAME_1","VARNAME_1_lower","ID_1","total_n","pct","lon","lat","geometry"))
 # But simpler: rebuild a tidy pie df with standard columns "Positive" and "Negative"
 pie_df <- df_counts %>%
   select(TINH, KET_QUA_NS1_BIOSENSOR, n) %>%
