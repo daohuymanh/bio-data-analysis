@@ -59,8 +59,9 @@ print(unique(df$KET_QUA_NS1_BIOSENSOR))
 # --- LẤY SHAPE TỈNH VIỆT NAM TỪ GADM ---
 # Tải GADM (lưu về gadm_path). Lưu ý: cần internet để tải lần đầu
 cat("Tải GADM level 1 cho Vietnam (nếu chưa có)\n")
-gadm_vn <- geodata::gadm(country = "VNM", level = gadm_level, path = gadm_path, version = "4.0")$sf
-
+gadm <- geodata::gadm(country = "VNM", level = 1, path = "GADM/", version = "4.0")
+gadm_vn <- tryCatch(sf::st_as_sf(gadm_vn),error = function(e) NULL)
+                       
 # Xem tên cột tên tỉnh trong shapefile (thường là NAME_1)
 print(names(gadm_vn))
 # Thường tên tỉnh nằm ở cột NAME_1
