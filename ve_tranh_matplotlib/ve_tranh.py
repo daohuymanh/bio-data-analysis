@@ -55,4 +55,4 @@ for offset in [-0.4, 0.4]:
 
 # Lưu ảnh
 plt.savefig("la_bang_buong_troi.png", dpi=300, bbox_inches="tight")
-plt.show()
+print("la_bang_buong_troi.png")
