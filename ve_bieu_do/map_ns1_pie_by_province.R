@@ -75,7 +75,7 @@ gadm_vn <- gadm_vn %>% mutate(VARNAME_1_lower = tolower(trimws(VARNAME_1)))
 # Thử khớp trực tiếp bằng lowercase
 df_join <- df_wide %>%
   mutate(TINH_lower = tolower(trimws(TINH))) %>%
-  left_join(gadm_vn %>% select(GID_1 = GID_1, VARNAME_1, VARNAME_1_lower, geometry), by = c("TINH_lower" = "VARNAME_1_lower"))
+  left_join(gadm_vn %>% select(ID_1 = ID_1, VARNAME_1, VARNAME_1_lower, geometry), by = c("TINH_lower" = "VARNAME_1_lower"))
 
 
 # --- LẤY TỌA ĐỘ CENTROID CHO MỖI TỈNH ĐỂ ĐẶT PIE ---
