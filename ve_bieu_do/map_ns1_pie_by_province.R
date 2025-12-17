@@ -78,7 +78,7 @@ df_join <- df_wide %>%
   left_join(gadm_vn %>% select(ID_1 = ID_1, VARNAME_1, VARNAME_1_lower, geometry), by = c("TINH_lower" = "VARNAME_1_lower"))
 
 # Những tỉnh chưa khớp
-not_matched <- df_join %>% filter(is.na(GID_1)) %>% distinct(TINH) %>% pull(TINH)
+not_matched <- df_join %>% filter(is.na(ID_1)) %>% distinct(TINH) %>% pull(TINH)
 if (length(not_matched) > 0) {
   cat("Các TINH không khớp tên tự động (bạn có thể map tay):\n")
   print(not_matched)
@@ -106,18 +106,18 @@ if (length(not_matched) > 0) {
   # Nếu manual_map chứa mapping thì apply
   if (exists("manual_map")) {
     tmp2 <- tmp %>% left_join(manual_map, by = "TINH")
-    # nếu có NAME_1 từ manual_map, join vào gadm
-    tmp2 <- tmp2 %>% mutate(NAME_1_join = ifelse(!is.na(NAME_1), NAME_1, NA))
-    tmp2 <- tmp2 %>% left_join(gadm_vn %>% select(NAME_1, NAME_1_lower), by = c("NAME_1_join" = "NAME_1"))
+    # nếu có VARNAME_1 từ manual_map, join vào gadm
+    tmp2 <- tmp2 %>% mutate(VARNAME_1_join = ifelse(!is.na(VARNAME_1), VARNAME_1, NA))
+    tmp2 <- tmp2 %>% left_join(gadm_vn %>% select(VARNAME_1, VARNAME_1_lower), by = c("VARNAME_1_join" = "VARNAME_1"))
     # now merge back where mapped
-    mapped_names <- tmp2 %>% filter(!is.na(NAME_1_lower)) %>% select(TINH, NAME_1)
+    mapped_names <- tmp2 %>% filter(!is.na(VARNAME_1_lower)) %>% select(TINH, VARNAME_1)
     if (nrow(mapped_names) > 0) {
       # apply mapping to df_wide
       df_wide <- df_wide %>% left_join(mapped_names, by = "TINH")
       # if NAME_1 present, join to gadm by NAME_1
       df_join <- df_wide %>% 
-        mutate(NAME_1_lower = ifelse(is.na(NAME_1), tolower(trimws(TINH)), tolower(trimws(NAME_1)))) %>%
-        left_join(gadm_vn %>% select(GID_1, NAME_1, NAME_1_lower, geometry), by = c("NAME_1_lower" = "NAME_1_lower"))
+        mutate(VARNAME_1_lower = ifelse(is.na(VARNAME_1), tolower(trimws(TINH)), tolower(trimws(VARNAME_1)))) %>%
+        left_join(gadm_vn %>% select(ID_1, VARNAME_1, VARNAME_1_lower, geometry), by = c("VARNAME_1_lower" = "VARNAME_1_lower"))
     }
   }
 }
@@ -125,7 +125,7 @@ if (length(not_matched) > 0) {
 # Nếu vẫn chưa match nhiều, in gợi ý mapping cho bạn
 if (any(is.na(df_join$GID_1))) {
   cat("Sau cố gắng tự động/manual, vẫn còn các TINH không match. In bảng TINH có thể bạn cần sửa:\n")
-  print(df_wide %>% filter(!tolower(TINH) %in% gadm_vn$NAME_1_lower) %>% distinct(TINH))
+  print(df_wide %>% filter(!tolower(TINH) %in% gadm_vn$VARNAME_1_lower) %>% distinct(TINH))
 }
 
 # Giữ những bản ghi đã match
