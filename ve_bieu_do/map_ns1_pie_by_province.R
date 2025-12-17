@@ -50,6 +50,7 @@ df_counts <- df %>%
 df_wide <- df_counts %>%
   select(TINH, KET_QUA_NS1_BIOSENSOR, n) %>%
   tidyr::pivot_wider(names_from = KET_QUA_NS1_BIOSENSOR, values_from = n, values_fill = 0)
+df_wide <- df_wide %>% filter(!is.na(TINH))
 
 # rename common labels nếu cần (ví dụ "Positive"/"Negative")
 # kiểm tra các nhãn duy nhất
