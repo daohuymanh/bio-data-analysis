@@ -87,57 +87,8 @@ if (length(not_matched) > 0) {
   cat("Tất cả TINH đã khớp tự động với shapefile.\n")
 }
 
-# Nếu có tỉnh không khớp, bạn có thể cung cấp bảng map tay; ví dụ:
-# manual_map <- tibble::tribble(
-#   ~TINH, ~NAME_1,
-#   "TP. Can Tho", "Cần Thơ",
-#   "Ben Tre", "Bến Tre"
-# )
-# Sau đó join theo manual_map -> NAME_1 -> gadm
-
-# Ví dụ minh họa: cố gắng chỉnh 1 vài tên hay gặp (bạn hãy chỉnh theo dữ liệu thực tế)
-# Tạo hàm mapping đơn giản (bổ sung nếu cần)
-manual_map <- tibble::tibble(
-  TINH = c("TP. Can Tho", "TP. HCM", "HCM", "Ha Noi", "TP. Ha Noi"),
-  NAME_1 = c("Cần Thơ", "Hồ Chí Minh", "Hồ Chí Minh", "Hà Nội", "Hà Nội")
-)
-
-if (length(not_matched) > 0) {
-  tmp <- df_wide %>% mutate(TINH_lower = tolower(trimws(TINH)))
-  # Nếu manual_map chứa mapping thì apply
-  if (exists("manual_map")) {
-    tmp2 <- tmp %>% left_join(manual_map, by = "TINH")
-    # nếu có VARNAME_1 từ manual_map, join vào gadm
-    tmp2 <- tmp2 %>% mutate(VARNAME_1_join = ifelse(!is.na(VARNAME_1), VARNAME_1, NA))
-    tmp2 <- tmp2 %>% left_join(gadm_vn %>% select(VARNAME_1, VARNAME_1_lower), by = c("VARNAME_1_join" = "VARNAME_1"))
-    # now merge back where mapped
-    mapped_names <- tmp2 %>% filter(!is.na(VARNAME_1_lower)) %>% select(TINH, VARNAME_1)
-    if (nrow(mapped_names) > 0) {
-      # apply mapping to df_wide
-      df_wide <- df_wide %>% left_join(mapped_names, by = "TINH")
-      # if NAME_1 present, join to gadm by NAME_1
-      df_join <- df_wide %>% 
-        mutate(VARNAME_1_lower = ifelse(is.na(VARNAME_1), tolower(trimws(TINH)), tolower(trimws(VARNAME_1)))) %>%
-        left_join(gadm_vn %>% select(ID_1, VARNAME_1, VARNAME_1_lower, geometry), by = c("VARNAME_1_lower" = "VARNAME_1_lower"))
-    }
-  }
-}
-
-# Nếu vẫn chưa match nhiều, in gợi ý mapping cho bạn
-if (any(is.na(df_join$GID_1))) {
-  cat("Sau cố gắng tự động/manual, vẫn còn các TINH không match. In bảng TINH có thể bạn cần sửa:\n")
-  print(df_wide %>% filter(!tolower(TINH) %in% gadm_vn$VARNAME_1_lower) %>% distinct(TINH))
-}
-
 # Giữ những bản ghi đã match
-df_mapped <- df_join %>% filter(!is.na(GID_1))
-
-# Nếu không có gì match, dừng lại
-if (nrow(df_mapped) == 0) stop("Không có tỉnh nào match với shapefile. Vui lòng chỉnh lại mapping thủ công.")
-
-
-                    
-
+df_mapped <- df_join %>% filter(!is.na(ID_1))
 
 # --- LẤY TỌA ĐỘ CENTROID CHO MỖI TỈNH ĐỂ ĐẶT PIE ---
 # chuyển gadm_vn sang sf với crs phù hợp
